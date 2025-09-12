@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wizard Maker — Full Toolbar Edition</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>Wizard Maker — Button Fix (v11)</h1>
+    <p>Upload EduPro (multi-page). Double-click or double-tap buttons/links/inputs to edit. Cancel fully restores. Fonts untouched.</p>
+
+    <div class="topbar">
+      <input type="file" id="zipInput" accept=".zip">
+      <button id="exportBtn">⬇ Export ZIP</button>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div id="iframeContainer"></div>
+  </div>
+
+  <!-- Toolbar HTML -->
+  <div id="editorToolbar" style="display:none;">
+    <button id="btnUndo">⮪ Undo</button>
+    <button id="btnRedo">⮫ Redo</button>
+    <button id="btnBold"><b>B</b></button>
+    <button id="btnItalic"><i>I</i></button>
+    <button id="btnUnderline"><u>U</u></button>
+
+    <select id="fontSelect">
+      <option value="Arial">Arial</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Tahoma">Tahoma</option>
+      <option value="Trebuchet MS">Trebuchet MS</option>
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Lucida Console">Lucida Console</option>
+      <option value="Impact">Impact</option>
+      <option value="Comic Sans MS">Comic Sans MS</option>
+    </select>
+
+    <input type="number" id="fontSize" min="8" max="72" style="width:60px;">
+    <input id="modalText" type="text" placeholder="Text / Placeholder">
+
+    <select id="colorTarget">
+      <option value="auto">Auto</option>
+      <option value="text">Text Color</option>
+      <option value="background">Background</option>
+    </select>
+
+    <input type="color" id="modalColor" value="#000000">
+    <input type="url" id="imageUrl" placeholder="Image URL">
+    <input type="file" id="imageFile" accept="image/*">
+
+    <button id="btnDelete" style="background:#c00;">🗑 Delete</button>
+    <button id="saveBtn">Save</button>
+    <button id="cancelBtn">Cancel</button>
+  </div>
+
+  <script src="main.js"></script>
+   <script src="theme.js"></script>
+  
+
+</body>
+</html>
