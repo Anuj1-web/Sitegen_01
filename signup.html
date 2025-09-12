@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sitegen Hosting - Sign Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-black">
+
+  <!-- Navbar (same as index page) -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-bold text-black">Sitegen Hosting</h1>
+      <nav class="space-x-6 hidden md:flex">
+        <a href="plans.html" class="hover:text-black">Plans</a>
+        <a href="features.html" class="hover:text-black">Features</a>
+        <a href="about.html" class="hover:text-black">About</a>
+        <a href="contact.html" class="hover:text-black">Contact</a>
+      </nav>
+      <div class="space-x-3">
+        <a href="login.html" class="px-4 py-2 text-sm border border-black text-black rounded-lg hover:bg-gray-100">Login</a>
+        <a href="signup.html" class="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Signup Card -->
+  <main class="flex justify-center items-center min-h-[calc(100vh-72px)] py-20">
+    <section class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
+      <h2 class="text-3xl font-extrabold mb-6 text-center">Create Your Account</h2>
+
+      <form id="signupForm2" class="space-y-4" novalidate>
+        <input type="text" id="name" placeholder="Full Name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" required>
+        <input type="email" id="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" required>
+        <input type="password" id="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" required>
+
+        <button type="submit" class="w-full py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition">Sign Up</button>
+        <button type="button" id="resendVerificationBtn" class="w-full py-3 border border-black text-white rounded-lg hover:bg-gray-100 transition hidden">Resend Verification</button>
+        <button type="button" id="goToLoginBtn" class="w-full py-3 border border-black text-black rounded-lg hover:bg-gray-100 transition">Already have an account? Login</button>
+      </form>
+
+      <div class="flex items-center my-6 text-gray-500">
+        <span class="flex-1 h-px bg-gray-300"></span>
+        <span class="mx-3">OR</span>
+        <span class="flex-1 h-px bg-gray-300"></span>
+      </div>
+
+      <button type="button" id="googleSignupBtn" class="w-full flex items-center justify-center gap-3 py-3 border border-black rounded-lg hover:bg-gray-100 transition">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5"> Continue with Google
+      </button>
+    </section>
+  </main>
+
+  <!-- Footer (same as index page) -->
+  <footer class="bg-gray-900 text-gray-300 py-10">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+      <div>
+        <h4 class="text-xl font-bold text-white mb-3">Sitegen Hosting</h4>
+        <p>Reliable hosting solutions to power your online journey.</p>
+      </div>
+      <div>
+        <h5 class="text-lg font-semibold text-white mb-2">Quick Links</h5>
+        <ul class="space-y-1 text-sm">
+          <li><a href="plans.html" class="hover:text-white">Plans</a></li>
+          <li><a href="features.html" class="hover:text-white">Features</a></li>
+          <li><a href="about.html" class="hover:text-white">About Us</a></li>
+          <li><a href="contact.html" class="hover:text-white">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="text-lg font-semibold text-white mb-2">Get in Touch</h5>
+        <p>Email: support@sitegenhosting.com</p>
+        <p>Phone: +1 (800) 123-4567</p>
+      </div>
+    </div>
+    <div class="mt-8 text-center text-sm text-gray-500">© 2025 Sitegen Hosting. All rights reserved.</div>
+  </footer>
+
+  <!-- Toasts -->
+  <div id="toastContainer" class="fixed top-4 right-4 flex flex-col gap-2 z-50"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="firebase-login.js"></script>
+  <script type="module" src="signup2.js"></script>
+
+  <!-- Added click listener for "Already have an account" -->
+  <script>
+    const goToLoginBtn = document.getElementById("goToLoginBtn");
+    goToLoginBtn?.addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

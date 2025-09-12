@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sitegen – Features</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body {
+  margin:0;
+  font-family:ui-sans-serif,system-ui;
+  background:#0f172a;
+  color:#f8fafc;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Header */
+header {
+  background:#111827;
+  border-bottom:1px solid #1e293b;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.header-inner {
+  max-width:1200px;
+  margin:0 auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 24px;
+}
+.brand { font-weight:700; font-size:1.5rem; color:#fff; }
+nav a { margin-left:16px; text-decoration:none; color:#f8fafc; font-weight:500; transition:0.2s; }
+nav a:hover { color:#3b82f6; }
+.btn { padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; border:none; transition:0.2s; }
+.btn-black { background:#3b82f6; color:#fff; }
+.btn-black:hover { opacity:0.9; transform:translateY(-1px); }
+.btn-ghost { background:transparent; border:1px solid #f8fafc; color:#f8fafc; }
+.btn-ghost:hover { background:#1e293b; }
+
+/* Hero */
+.hero {
+  position:relative;
+  text-align:center;
+  padding:140px 24px 100px;
+  overflow:hidden;
+  z-index:1;
+}
+.hero h1 { font-size:3rem; font-weight:800; margin-bottom:16px; z-index:1; position:relative; animation: fadeInUp 1s ease forwards; opacity:0; }
+.hero p { font-size:1.25rem; color:#cbd5e1; z-index:1; position:relative; animation: fadeInUp 1s 0.5s ease forwards; opacity:0; }
+
+/* Hero floating balls */
+.hero::before, .hero::after {
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  background:linear-gradient(135deg,#3b82f6,#9333ea);
+  opacity:0.2;
+  z-index:0;
+  animation: floatCircle 12s ease-in-out infinite alternate;
+}
+.hero::before { width:350px; height:350px; top:-70px; left:-70px; }
+.hero::after { width:450px; height:450px; bottom:-100px; right:-100px; animation-delay:6s; }
+
+@keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+@keyframes floatCircle { 0% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-60px) translateX(60px); } 100% { transform: translateY(0) translateX(0); } }
+
+/* Feature Cards */
+.features {
+  max-width:1200px;
+  margin:60px auto;
+  padding:0 24px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:40px;
+  text-align:center;
+  position:relative;
+  z-index:1;
+}
+.feature-card {
+  background:#1e293b;
+  border-radius:16px;
+  padding:40px 20px;
+  box-shadow:0 0 40px rgba(59,130,246,0.4);
+  transition:transform 0.3s, box-shadow 0.3s;
+  position:relative;
+  overflow:hidden;
+  transform:translateY(50px) scale(0.9);
+  opacity:0;
+  animation: fadeInUpScale 1s forwards;
+}
+.feature-card:nth-child(1){ animation-delay:0.3s; }
+.feature-card:nth-child(2){ animation-delay:0.6s; }
+.feature-card:nth-child(3){ animation-delay:0.9s; }
+.feature-card:hover { transform:translateY(-10px) scale(1.02); box-shadow:0 0 60px rgba(59,130,246,0.7); }
+.feature-icon { font-size:3rem; margin-bottom:16px; color:#3b82f6; animation: floatIcon 3s ease-in-out infinite; }
+@keyframes floatIcon { 0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);} }
+@keyframes fadeInUpScale { from {opacity:0; transform:translateY(50px) scale(0.9);} to {opacity:1; transform:translateY(0) scale(1);} }
+.feature-card h3 { font-size:1.5rem; margin-bottom:12px; }
+.feature-card p { font-size:1rem; color:#cbd5e1; }
+
+/* Workflow Cards */
+.workflow-container {
+  max-width:1000px;
+  margin:140px auto;
+  position:relative;
+  height:300px;
+  z-index:1;
+}
+.step-card {
+  width:180px;
+  background:#111827;
+  border:2px solid #3b82f6;
+  color:#f8fafc;
+  padding:28px 16px;
+  border-radius:16px;
+  text-align:center;
+  font-weight:600;
+  position:absolute;
+  box-shadow:0 0 25px rgba(59,130,246,0.5);
+  transition:all 1s ease, transform 1.5s ease-in-out;
+  opacity:0;
+  transform:translateY(50px) scale(0.8);
+}
+.step-card.completed {
+  background:#3b82f6;
+  color:#fff;
+  border-color:#2563eb;
+  transform:translateY(0) scale(1);
+}
+.checkmark { display:none; font-size:2rem; margin-top:8px; color:#22c55e; animation: popCheck 0.5s ease forwards; }
+.completed .checkmark { display:block; }
+@keyframes popCheck { 0% { transform: scale(0); opacity:0; } 50% { transform: scale(1.4); opacity:1; } 100% { transform: scale(1); opacity:1; } }
+
+/* Footer */
+footer { background:#111827; color:#d1d5db; padding:40px 0; margin-top:auto; position:relative; z-index:1; }
+.footer-grid { display:flex; flex-wrap:wrap; max-width:1200px; margin:0 auto; padding:0 24px; gap:24px; justify-content: space-between; }
+.footer-grid > div { flex:1 1 250px; min-width:200px; }
+footer h4, footer h5 { color:#fff; margin-bottom:12px; }
+footer ul { list-style:none; padding:0; margin:0; }
+footer ul li { margin-bottom:8px; }
+footer ul li a { color:#d1d5db; text-decoration:none; }
+footer ul li a:hover { color:#3b82f6; }
+.text-center { text-align:center; margin-top:20px; font-size:.875rem; color:#9ca3af; }
+
+/* Tech background behind content */
+#techCanvasFull {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+}
+.content-overlay {
+  position:relative;
+  z-index:1;
+}
+.tech-bg-wrapper {
+  position:relative;
+  width:100%;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <div class="brand">Sitegen Hosting</div>
+    <nav>
+      <a href="plans.html">Plans</a>
+      <a href="features.html">Features</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div>
+      <a href="login.html" class="btn btn-ghost">Login</a>
+      <a href="signup.html" class="btn btn-black">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Build Stunning Websites Instantly</h1>
+  <p>Sitegen transforms your ideas into live websites in just a few clicks.</p>
+</section>
+
+<!-- Tech background wrapper -->
+<div class="tech-bg-wrapper">
+  <canvas id="techCanvasFull"></canvas>
+  <div class="content-overlay">
+
+    <!-- Features Cards -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🖼️</div>
+        <h3>Choose Template</h3>
+        <p>Select from hundreds of professional templates in one click.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✏️</div>
+        <h3>Customize Easily</h3>
+        <p>Edit text, images, colors, and layout intuitively.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Publish Instantly</h3>
+        <p>Host your website with a single click and go live immediately.</p>
+      </div>
+    </div>
+
+    <!-- Workflow Demo -->
+    <div class="workflow-container">
+      <svg class="workflow-svg">
+        <line x1="0" y1="150" x2="100%" y2="150" stroke="#3b82f6" stroke-width="4" stroke-dasharray="12" stroke-dashoffset="0"/>
+      </svg>
+      <div class="step-card" id="step1" style="top:40px; left:10%;">Select Template
+        <div class="checkmark">✔</div>
+      </div>
+      <div class="step-card" id="step2" style="top:40px; left:40%;">Customize Details
+        <div class="checkmark">✔</div>
+      </div>
+      <div class="step-card" id="step3" style="top:40px; left:70%;">Site Ready!
+        <div class="checkmark">✔</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-grid">
+        <div>
+          <h4>Sitegen Hosting</h4>
+          <p>Reliable hosting solutions to power your online journey.</p>
+        </div>
+        <div>
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="plans.html">Plans</a></li>
+            <li><a href="features.html">Features</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Get in Touch</h5>
+          <p>Email: support@sitegenhosting.com</p>
+          <p>Phone: +1 (800) 123-4567</p>
+        </div>
+      </div>
+      <div class="text-center">© 2025 Sitegen Hosting. All rights reserved.</div>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+// Workflow animation
+const steps = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+let index = 0;
+function completeStep() {
+  if(index >= steps.length) return;
+  steps[index].style.opacity = '1';
+  steps[index].style.transform = 'translateY(0) scale(1)';
+  steps[index].classList.add('completed');
+  index++;
+  setTimeout(completeStep, 1800);
+}
+window.onload = () => { setTimeout(completeStep, 1200); }
+
+// Tech background canvas
+const canvasFull = document.getElementById('techCanvasFull');
+const ctxFull = canvasFull.getContext('2d');
+
+function resizeCanvas() {
+  canvasFull.width = canvasFull.offsetWidth;
+  canvasFull.height = canvasFull.offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+const nodes = [];
+for(let i=0;i<60;i++){
+  nodes.push({
+    x: Math.random()*canvasFull.width,
+    y: Math.random()*canvasFull.height,
+    vx: (Math.random()-0.5)*0.5,
+    vy: (Math.random()-0.5)*0.5,
+    radius: Math.random()*2+1.5
+  });
+}
+
+function drawFull() {
+  ctxFull.clearRect(0,0,canvasFull.width,canvasFull.height);
+
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < 120){
+        ctxFull.strokeStyle = 'rgba(59,130,246,' + (1 - dist/120) + ')';
+        ctxFull.lineWidth = 0.8;
+        ctxFull.beginPath();
+        ctxFull.moveTo(nodes[i].x, nodes[i].y);
+        ctxFull.lineTo(nodes[j].x, nodes[j].y);
+        ctxFull.stroke();
+      }
+    }
+  }
+
+  nodes.forEach(node => {
+    ctxFull.fillStyle = '#3b82f6';
+    ctxFull.beginPath();
+    ctxFull.arc(node.x, node.y, node.radius, 0, Math.PI*2);
+    ctxFull.fill();
+
+    node.x += node.vx;
+    node.y += node.vy;
+
+    if(node.x < 0 || node.x > canvasFull.width) node.vx *= -1;
+    if(node.y < 0 || node.y > canvasFull.height) node.vy *= -1;
+  });
+
+  requestAnimationFrame(drawFull);
+}
+drawFull();
+</script>
+
+</body>
+</html>
