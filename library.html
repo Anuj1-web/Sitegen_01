@@ -28,10 +28,11 @@
     <progress id="uploadProgress" value="0" max="100" class="w-full mb-4"></progress>
     <button id="uploadBtn" class="btn">Upload</button>
   </div>
-<div class="flex flex-col">
-  <label class="block mb-2 font-semibold">Or sync from cloud</label>
-  <button id="syncDropboxBtn" class="btn bg-blue-600 hover:bg-blue-700">🔄 Sync from Dropbox</button>
-  <!-- Status message -->
+<div class="flex flex-col mt-4">
+  <label class="block mb-2 font-semibold">Or load Dropbox test ZIP</label>
+  <button id="loadDropboxZipBtn" class="btn bg-blue-600 hover:bg-blue-700">
+    🔄 Load Dropbox Test ZIP
+  </button>
   <p id="syncStatus" class="mt-2 text-sm text-gray-600"></p>
 </div>
 
@@ -171,74 +172,47 @@
     });
   </script>
 <script>
-  async function syncDropbox() {
+  document.getElementById("loadDropboxZipBtn").onclick = async function() {
     const statusEl = document.getElementById("syncStatus");
-    statusEl.textContent = "🔄 Connecting to Dropbox...";
+    statusEl.textContent = "🔄 Loading ZIP from Dropbox...";
 
     try {
-      const resp = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer YOUR_TOKEN_HERE", // replace with your token
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ path: "" }) // "" for App Folder, "/Sitegen_01" if Full Dropbox
-      });
+      // Direct download link (dl=1 forces download)
+      const url = "https://www.dropbox.com/scl/fi/hx8simd8e8wljw0gkojck/eduflow_site.zip?dl=1";
+      const res = await fetch(url);
 
-      if (!resp.ok) {
-        const errText = await resp.text();
-        throw new Error("Dropbox API error: " + errText);
-      }
+      if (!res.ok) throw new Error("Failed to fetch the ZIP");
 
-      const data = await resp.json();
-      const zips = data.entries.filter(e => e.name.endsWith(".zip"));
+      const blob = await res.blob();
+      const reader = new FileReader();
 
-      if (zips.length === 0) {
-        statusEl.textContent = "⚠️ No .zip files found in Dropbox.";
-        return;
-      }
+      reader.onload = e => {
+        let library = JSON.parse(localStorage.getItem("sitegenLibrary") || "[]");
 
-      for (const file of zips) {
-        // Download file
-        const downloadRes = await fetch("https://content.dropboxapi.com/2/files/download", {
-          method: "POST",
-          headers: {
-            "Authorization": "sl.u.AF_NbBadetuxetl2IHa9NP0taABV4UM_67gyjYHPUj6_hOYzUSmOqvhEP0GZiOg9R9WQMZAwhMQBx6Ui_G7VMFDbLoqmLCoaoFGt5VyNxsK0hW9epKML7wlf6XC0g_T2Sz0OgGflBXwYDxZt9doIz01QugXaPikOq0jZ0gVVNvo4FZvxuzqrRckeO4d7CvfAFyKARU3xgOlwlIPMzBvLi5nMzgWmxTaW9ZC35DajToEe83Q5vugql9eJiFBjkysxph8mPsmrJHAzt-5tqt8fTJ-PGZSgNouOpMpm0qt4J0MzE3DDAI9jLFKp8gmGE4o8efgGA6ajNMs4w1nmlYbO46JdS6H2rvfeDSO9y3ecRnJNZwf4gvb5KXm-FXZGYX02e1fQXmdeoCwOdZGCyE9M4rI6dPUgoIbSxF92Bd_dIck-moivXirwOeT9SjOrJG2JWeQAtaRYiKksJqQtjh4g3gJe8X8mk7U8gerIM6jBN9A27ZrDwp5lRXZaSEYYSkCcjiWmK29L-c3fV-F6-v_Q0Q1v4S9fvJk57v1TItRC_-iuOYELFapyas74ffJi_57kl1grSTgzvLwMbjmpBLpxiOhsWX97qi7wqpb2wLcIPO894LQ5bQgnq8MSSqY7GiMkXpF6EdCaDjgEsZLduq5Al-A5mp1HgzlkTgXCTETbQgyXNCCUJkRyxqCr-yUGf9OZLMPC4gFLK4NPvCIR-QES61i3kkTKLZcVwl4T7h6_yCVSShTfZrrLW9cbIdGvBH3KsFOLYHQE1n6962ifPpcxXT08syF3PTiH7ow58_0HksbG7nRm8qUx1ReCN5An7QIB8jsM7oIvfLNJE2b51Lylo5LExa7vSg4NVOAENx7OBMm3bZmL6CPcy_i7ckHjEU8TiPG0UR8loW7EzU2ldiR_ujdPZvN9Z7VUbCcMqVVIoP5XGA5w3SGnSZlCW4bza2Ke5sn9n7P50VCv2piL53DhkTrLuON-pEZ8pPxA4P0cM0f6KofvfGbWKwA8vUfuP4PoaFFfOQ-g4ydoafXXW5rgTaaCq7AvytgK_0wIjDWV-NA7MHy7zyIQPYq_mpKm0ymLTQC56ck3Ne2TzayXsZ4DIOgiTn69TyBFFw3kK5SAXDP_F2L2x0MuM7yuvDzVD_iDwvnCGc4EilkUVdFP9Qa22uou5pwkJA1LiOf_kzBSGhCMqSNszqEmwuGYd0p4suf1hcMTOYQ2R0WOAasFDQxRZughLzzu5G50Z5KbalPT76iPXyeXHoSxkfJ6QRLJr3W32CA5SQx9nJPbarwdeLjHpyfjSPrK0yZuDqZj99Jlk-QgJawwoa7kVxAhvF7VC3GgDNcDX4KzO_tHU0NN6w6oFOlyo_vPjYmyzfepCpvO89L5E1kMWi9lJebfBNAYXpHW06R6HErwCUShekUH9RIwm4goJq2zWkg0gxGYYDkClwm7JUVEKLnPvSfzY4peBhkIyXCLUv-QWde5PaWqalW_v3x9", // replace with your token
-            "Dropbox-API-Arg": JSON.stringify({ path: file.path_lower })
-          }
+        // Add the Dropbox ZIP to library
+        library.push({
+          name: "eduflow_site.zip",
+          type: "template",
+          content: e.target.result,
+          thumbnail: null
         });
 
-        if (!downloadRes.ok) {
-          console.error("Download error:", await downloadRes.text());
-          continue;
-        }
+        localStorage.setItem("sitegenLibrary", JSON.stringify(library));
 
-        const blob = await downloadRes.blob();
-        const reader = new FileReader();
-        reader.onload = e => {
-          library.push({
-            name: file.name,
-            type: "template",
-            content: e.target.result,
-            thumbnail: null
-          });
-          localStorage.setItem("sitegenLibrary", JSON.stringify(library));
-          renderLibrary();
-          statusEl.textContent = `✅ Synced! Found ${zips.length} file(s).`;
-        };
-        reader.readAsDataURL(blob);
-      }
+        // Refresh the library display
+        if (typeof renderLibrary === "function") renderLibrary();
+
+        statusEl.textContent = "✅ Dropbox ZIP loaded successfully!";
+      };
+
+      reader.readAsDataURL(blob);
+
     } catch (err) {
       console.error(err);
       statusEl.textContent = "❌ Error: " + err.message;
     }
-  }
-
-  document.getElementById("syncDropboxBtn").onclick = syncDropbox;
+  };
 </script>
-
-
-
 
 
 </body>
