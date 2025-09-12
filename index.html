@@ -6,108 +6,29 @@
 <title>Sitegen – Home</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  body {
-    margin:0;
-    font-family:ui-sans-serif,system-ui;
-    background:#f3f4f6;
-    color:#111827;
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
-    overflow-x:hidden;
-  }
-
-  /* Header */
-  header {
-    background:#fff;
-    border-bottom:1px solid #e5e7eb;
-    position:sticky;
-    top:0;
-    z-index:50;
-  }
-  .header-inner {
-    max-width:1200px;
-    margin:0 auto;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:16px 24px;
-  }
+  body { margin:0; font-family:ui-sans-serif,system-ui; background:#f3f4f6; color:#111827; display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden; }
+  header { background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0; z-index:50; }
+  .header-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; padding:16px 24px; }
   .brand { font-weight:700; font-size:1.5rem; }
   nav a { margin-left:16px; text-decoration:none; color:#111827; font-weight:500; }
   .btn { padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; border:none; transition:0.2s; }
-  .btn-black { background:#000; color:#fff; }
-  .btn-black:hover { opacity:0.9; transform:translateY(-1px); }
-  .btn-ghost { background:transparent; border:1px solid #d1d5db; color:#111827; }
-  .btn-ghost:hover { background:#f3f4f6; }
+  .btn-black { background:#000; color:#fff; } .btn-black:hover { opacity:0.9; transform:translateY(-1px); }
+  .btn-ghost { background:transparent; border:1px solid #d1d5db; color:#111827; } .btn-ghost:hover { background:#f3f4f6; }
 
-  /* Hero */
-  .hero {
-    background-color:#1e293b; /* dark slate */
-    color:#f8fafc;
-    text-align:center;
-    padding:100px 24px 60px;
-    position:relative;
-    overflow:hidden;
-  }
+  .hero { background-color:#1e293b; color:#f8fafc; text-align:center; padding:100px 24px 60px; position:relative; overflow:hidden; }
   .hero h1 { font-size:3rem; font-weight:800; margin-bottom:16px; z-index:1; position:relative; }
   .hero p { font-size:1.25rem; color:#cbd5e1; z-index:1; position:relative; }
-
-  /* Floating gradient balls - same as features.html */
-  .hero::before, .hero::after {
-    content:"";
-    position:absolute;
-    border-radius:50%;
-    background:linear-gradient(135deg,#3b82f6,#9333ea);
-    opacity:0.2;
-    z-index:0;
-    animation: floatCircle 12s ease-in-out infinite alternate;
-  }
+  .hero::before, .hero::after { content:""; position:absolute; border-radius:50%; background:linear-gradient(135deg,#3b82f6,#9333ea); opacity:0.2; z-index:0; animation: floatCircle 12s ease-in-out infinite alternate; }
   .hero::before { width:350px; height:350px; top:-70px; left:-70px; }
   .hero::after { width:450px; height:450px; bottom:-100px; right:-100px; animation-delay:6s; }
+  @keyframes floatCircle { 0% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-60px) translateX(60px); } 100% { transform: translateY(0) translateX(0); } }
 
-  @keyframes floatCircle { 
-    0% { transform: translateY(0) translateX(0); } 
-    50% { transform: translateY(-60px) translateX(60px); } 
-    100% { transform: translateY(0) translateX(0); } 
-  }
+  #libraryGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:24px; max-width:1200px; margin:40px auto; padding:0 24px; }
+  .card { background:#1e293b; border-radius:16px; overflow:hidden; box-shadow:0 10px 24px rgba(0,0,0,.06); cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; text-align:center; }
+  .card img { width:100%; height:200px; object-fit:cover; }
+  .card .card-title { color:#f8fafc; font-weight:600; margin:12px 0; }
+  .card:hover { transform:translateY(-3px); box-shadow:0 18px 40px rgba(0,0,0,.25); }
 
-  /* Templates grid */
-  #libraryGrid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:24px;
-    max-width:1200px;
-    margin:40px auto;
-    padding:0 24px;
-  }
-
-  /* Card styling */
-  .card {
-    background:#1e293b;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:0 10px 24px rgba(0,0,0,.06);
-    cursor:pointer;
-    transition:transform 0.2s, box-shadow 0.2s;
-    text-align:center;
-  }
-  .card img {
-    width:100%;
-    height:200px;
-    object-fit:cover;
-  }
-  .card .card-title {
-    color:#f8fafc;
-    font-weight:600;
-    margin:12px 0;
-  }
-  .card:hover { 
-    transform:translateY(-3px); 
-    box-shadow:0 18px 40px rgba(0,0,0,.25); 
-  }
-
-  /* Footer */
   footer { background:#111827; color:#d1d5db; padding:40px 0; margin-top:auto; }
   .footer-grid { display:flex; flex-wrap:wrap; max-width:1200px; margin:0 auto; padding:0 24px; gap:24px; justify-content: space-between; }
   .footer-grid > div { flex:1 1 250px; min-width:200px; }
@@ -121,7 +42,6 @@
 </head>
 <body>
 
-<!-- Header -->
 <header>
   <div class="header-inner">
     <div class="brand">Sitegen Hosting</div>
@@ -138,16 +58,13 @@
   </div>
 </header>
 
-<!-- Hero -->
 <section class="hero">
   <h1>Make your own site in minutes</h1>
   <p>Build professional websites with just a few clicks. No coding required.</p>
 </section>
 
-<!-- Templates Grid -->
 <div id="libraryGrid"></div>
 
-<!-- Footer -->
 <footer>
   <div class="footer-grid">
     <div>
@@ -175,42 +92,50 @@
 <script>
   const libraryGrid = document.getElementById("libraryGrid");
 
-  let library = JSON.parse(localStorage.getItem("sitegenLibrary") || "[]");
+  const dropboxTemplate = {
+    name: "eduflow_site.zip",
+    thumbnail: "https://via.placeholder.com/400x200?text=No+Thumbnail",
+    type: "template",
+    url: "https://www.dropbox.com/scl/fi/hx8simd8e8wljw0gkojck/eduflow_site.zip?dl=1"
+  };
 
-  function openInWizard(zipBlob) {
+  function openInWizard(blob) {
     const reader = new FileReader();
     reader.onload = () => {
       localStorage.setItem("wizardTemplate", reader.result);
       window.location.href = "wizardmaker.html";
     };
-    reader.readAsDataURL(zipBlob);
+    reader.readAsDataURL(blob);
   }
 
   function renderTemplates() {
     libraryGrid.innerHTML = "";
-    library.forEach((item)=>{
-      if(item.type==="template"){
-        const card = document.createElement("div");
-        card.className = "card";
 
-        const img = document.createElement("img");
-        img.src = item.thumbnail || "https://via.placeholder.com/400x200?text=No+Thumbnail";
-        card.appendChild(img);
+    const card = document.createElement("div");
+    card.className = "card";
 
-        const title = document.createElement("div");
-        title.className = "card-title";
-        title.textContent = item.name || "Unnamed Template";
-        card.appendChild(title);
+    const img = document.createElement("img");
+    img.src = dropboxTemplate.thumbnail;
+    card.appendChild(img);
 
-        card.onclick = async ()=>{
-          const res = await fetch(item.content);
-          const blob = await res.blob();
-          openInWizard(blob);
-        }
+    const title = document.createElement("div");
+    title.className = "card-title";
+    title.textContent = dropboxTemplate.name;
+    card.appendChild(title);
 
-        libraryGrid.appendChild(card);
+    card.onclick = async () => {
+      try {
+        const res = await fetch(dropboxTemplate.url);
+        if (!res.ok) throw new Error("Failed to fetch ZIP from Dropbox");
+        const blob = await res.blob();
+        openInWizard(blob);
+      } catch(err) {
+        alert("Error loading template: " + err.message);
+        console.error(err);
       }
-    });
+    }
+
+    libraryGrid.appendChild(card);
   }
 
   renderTemplates();
