@@ -171,28 +171,6 @@
     });
   </script>
 <script>
-  const libraryEl = document.getElementById("library");
-  let library = JSON.parse(localStorage.getItem("wizardLibrary") || "[]");
-
-  function renderLibrary() {
-    libraryEl.innerHTML = "";
-    library.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "lib-item";
-      div.innerHTML = `
-        <span>${item.name}</span>
-        <button onclick="loadTemplate('${item.data}')">Load</button>
-      `;
-      libraryEl.appendChild(div);
-    });
-  }
-
-  function loadTemplate(data) {
-    localStorage.setItem("wizardImportZip", data);
-    window.location.href = "wizard.html"; // go to wizard with the selected template
-  }
-
-  // ------------------ Dropbox Sync ------------------
   async function syncDropbox() {
     const statusEl = document.getElementById("syncStatus");
     statusEl.textContent = "🔄 Connecting to Dropbox...";
@@ -201,10 +179,10 @@
       const resp = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
         method: "POST",
         headers: {
-          "Authorization": "sl.u.AF8D-3kjlnfGTsgkvNzKTcfg9OaHuJD-z3nWM9bY-3HVWL5nRRPVn_AuWlrBxSlDp72fnpVURwBlZZmHY93KeA2H2xnzTGpVRwdqwk5hxjGvfobZZIepGv6vj5F9sOMuj517Xb3UVAmpirxdozCCSzb2ccpde4knzFvkqdhR1xqI0vP3oNE3GpP5ACWoCnHJnl9ARm4Ea-nmLPeSgAs2L8Zf3hIHbONll_2YBUoUhnZUNLHfyhGTSPKDd5d_D9ziYyU7SaLzbogUVKQd75Z1WSEOltDkD2TCyvc5RVeNbtJLcRFtKU9eHE8ycjwQnJZ7jYwQm6rEDfXWi6PEb5XMzqviBT8QBycLrJjPCyTb94cEQvNCvXrqHxqNLGQGJauLfiXG_pflMnmTiMwANuLuXHchdKoSWNmMY1ZCBk9plAZ9lQSdxNXpf-xg5y6mjZsufP18QikkHmq6XXrL09xTOvtMwG1OsGaD6qy-2xa_tbOxsSoe_IPO_eQ8RFMeP1IAC_SRJ_faDMA4wzgJoNKEQrknKLFS6F-yGjISsNtyzz25XcyRLyYD5OUbzWIDVKkE4ePpVAImjIXkz3d95zVbwK0GPylY0r44C8ije00LvQzY2hIzgo5t5SXdX2EB4oUcBjtx6t2r8seLs2EzUkRjKaAjjFzuMH3GNiOTaljJbldVOyTuAKypd9Of8QYCwq0dLgJm0MWR4yRsnRWSF2rrdhQfqRMcfM0l6oWcIMILn8iy2Zv0g-FzdND6uS17FVnouInaPzD9R5sHkavDsbnxx1TJbGVtncIXa8BuNLUgKp32LNGed5aiERtm_Lwlm8YmDropRZBeOEVD86c6Uz6xYwGhS88khVv6WThgvlrimbfCoQLfojy_ffC6Hn0X4MzFQQ708iv6x8aERnzjBoCRUk14rbmSzcB8MlCeOFdiCb8MpdI_X7H26VBp9txXhuIa6422a6a42c-ZHiN4ZaFSZWy2NTsguBR5-Hq1ze-C3Qagrqn-LZ-6JQ4L3XnHydbbvgiUS2W_5LhZrdK3NdXFQCY9YOnl54TH9d95-dKuYhK6LolwnPFoArPoEpd3vScgrKj0pz51QdchVgX3A9d2CE398gXb8RMQw0rXUTfWxnIj20TaO2lzAciIMc1dJXPaiZIx-hRGbC0gU_6kjddAFb9aqnyPVpea8fBB9XFNT5WaRH5pOirS7vYRdqg0PEsRMA1BvebwMF576VmtuAYMkxvX8NnfiPkv0mq3NbkOgacGQz32zDG6cSJyB2Knb8DsZVj5qIwLJ60WRKROj4GNZbq5KMIT89Fqp4O21m3kuukV0VeCQcYMw8Z8IF_95jpCXUootj65Aj-Hq9G-xH_8In434QrVyTaWYelggun2pQN2v3QQhXbCTWyhEM2A7bvgnqgt9B3KFPfCCk13SPSQQDuEphFabZn45FOsYKHsOY4TGIz4SVS7F-Fzd1wCxpTr0yJyMH94FMN9sap50sZUswvG", // replace with your token
+          "Authorization": "Bearer YOUR_TOKEN_HERE", // replace with your token
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ path: "" }) // "" for App Folder, "/Sitegen_01" if Full Dropbox app
+        body: JSON.stringify({ path: "" }) // "" for App Folder, "/Sitegen_01" if Full Dropbox
       });
 
       if (!resp.ok) {
@@ -213,40 +191,52 @@
       }
 
       const data = await resp.json();
-
-      if (!data.entries || data.entries.length === 0) {
-        statusEl.textContent = "⚠️ No files found in Dropbox folder.";
-        return;
-      }
-
-      // Filter only .zip files
       const zips = data.entries.filter(e => e.name.endsWith(".zip"));
+
       if (zips.length === 0) {
         statusEl.textContent = "⚠️ No .zip files found in Dropbox.";
         return;
       }
 
-      // Add zip files to library
-      zips.forEach(file => {
-        const link = `https://www.dropbox.com/home/Apps/Sitegen_01/${encodeURIComponent(file.name)}`;
-        library.push({ name: file.name, data: link });
-      });
+      for (const file of zips) {
+        // Download file
+        const downloadRes = await fetch("https://content.dropboxapi.com/2/files/download", {
+          method: "POST",
+          headers: {
+            "Authorization": "sl.u.AF8D-3kjlnfGTsgkvNzKTcfg9OaHuJD-z3nWM9bY-3HVWL5nRRPVn_AuWlrBxSlDp72fnpVURwBlZZmHY93KeA2H2xnzTGpVRwdqwk5hxjGvfobZZIepGv6vj5F9sOMuj517Xb3UVAmpirxdozCCSzb2ccpde4knzFvkqdhR1xqI0vP3oNE3GpP5ACWoCnHJnl9ARm4Ea-nmLPeSgAs2L8Zf3hIHbONll_2YBUoUhnZUNLHfyhGTSPKDd5d_D9ziYyU7SaLzbogUVKQd75Z1WSEOltDkD2TCyvc5RVeNbtJLcRFtKU9eHE8ycjwQnJZ7jYwQm6rEDfXWi6PEb5XMzqviBT8QBycLrJjPCyTb94cEQvNCvXrqHxqNLGQGJauLfiXG_pflMnmTiMwANuLuXHchdKoSWNmMY1ZCBk9plAZ9lQSdxNXpf-xg5y6mjZsufP18QikkHmq6XXrL09xTOvtMwG1OsGaD6qy-2xa_tbOxsSoe_IPO_eQ8RFMeP1IAC_SRJ_faDMA4wzgJoNKEQrknKLFS6F-yGjISsNtyzz25XcyRLyYD5OUbzWIDVKkE4ePpVAImjIXkz3d95zVbwK0GPylY0r44C8ije00LvQzY2hIzgo5t5SXdX2EB4oUcBjtx6t2r8seLs2EzUkRjKaAjjFzuMH3GNiOTaljJbldVOyTuAKypd9Of8QYCwq0dLgJm0MWR4yRsnRWSF2rrdhQfqRMcfM0l6oWcIMILn8iy2Zv0g-FzdND6uS17FVnouInaPzD9R5sHkavDsbnxx1TJbGVtncIXa8BuNLUgKp32LNGed5aiERtm_Lwlm8YmDropRZBeOEVD86c6Uz6xYwGhS88khVv6WThgvlrimbfCoQLfojy_ffC6Hn0X4MzFQQ708iv6x8aERnzjBoCRUk14rbmSzcB8MlCeOFdiCb8MpdI_X7H26VBp9txXhuIa6422a6a42c-ZHiN4ZaFSZWy2NTsguBR5-Hq1ze-C3Qagrqn-LZ-6JQ4L3XnHydbbvgiUS2W_5LhZrdK3NdXFQCY9YOnl54TH9d95-dKuYhK6LolwnPFoArPoEpd3vScgrKj0pz51QdchVgX3A9d2CE398gXb8RMQw0rXUTfWxnIj20TaO2lzAciIMc1dJXPaiZIx-hRGbC0gU_6kjddAFb9aqnyPVpea8fBB9XFNT5WaRH5pOirS7vYRdqg0PEsRMA1BvebwMF576VmtuAYMkxvX8NnfiPkv0mq3NbkOgacGQz32zDG6cSJyB2Knb8DsZVj5qIwLJ60WRKROj4GNZbq5KMIT89Fqp4O21m3kuukV0VeCQcYMw8Z8IF_95jpCXUootj65Aj-Hq9G-xH_8In434QrVyTaWYelggun2pQN2v3QQhXbCTWyhEM2A7bvgnqgt9B3KFPfCCk13SPSQQDuEphFabZn45FOsYKHsOY4TGIz4SVS7F-Fzd1wCxpTr0yJyMH94FMN9sap50sZUswvG", // replace with your token
+            "Dropbox-API-Arg": JSON.stringify({ path: file.path_lower })
+          }
+        });
 
-      localStorage.setItem("wizardLibrary", JSON.stringify(library));
-      renderLibrary();
+        if (!downloadRes.ok) {
+          console.error("Download error:", await downloadRes.text());
+          continue;
+        }
 
-      statusEl.textContent = `✅ Synced! Found ${zips.length} file(s).`;
-
+        const blob = await downloadRes.blob();
+        const reader = new FileReader();
+        reader.onload = e => {
+          library.push({
+            name: file.name,
+            type: "template",
+            content: e.target.result,
+            thumbnail: null
+          });
+          localStorage.setItem("sitegenLibrary", JSON.stringify(library));
+          renderLibrary();
+          statusEl.textContent = `✅ Synced! Found ${zips.length} file(s).`;
+        };
+        reader.readAsDataURL(blob);
+      }
     } catch (err) {
       console.error(err);
       statusEl.textContent = "❌ Error: " + err.message;
     }
   }
 
-  // ------------------ Init ------------------
-  renderLibrary();
   document.getElementById("syncDropboxBtn").onclick = syncDropbox;
 </script>
+
 
 
 
