@@ -1,77 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Wizard Maker — Full Toolbar Edition</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
+<meta charset="UTF-8">
+<title>Wizard Maker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="card">
-    <h1>Wizard Maker — Full Toolbar Edition</h1>
-    <p>Edit your site templates freely. Each visitor gets a separate copy.</p>
-
-    <div class="topbar">
-      <input type="file" id="zipInput" accept=".zip">
-      <button id="exportBtn">⬇ Export ZIP</button>
-    </div>
-
-    <div class="tabs" id="tabs"></div>
+    <h1>Wizard Maker — Full Editor</h1>
+    <input type="file" id="zipInput" accept=".zip">
+    <button id="exportBtn">Export ZIP</button>
+    <div id="tabs"></div>
     <div id="iframeContainer"></div>
   </div>
 
-  <!-- Toolbar HTML -->
-  <div id="editorToolbar" style="display:none;">
-    <!-- Toolbar buttons omitted for brevity; same as your current toolbar -->
-  </div>
-
-  <style id="__wizard_theme">
-:root {
-  --primary-color: #0b79ff;
-  --accent-color: #06b6d4;
-  --bg-color: #ffffff;
-  --text-color: #000000;
-}
-</style>
-
-<!-- Theme panel omitted for brevity -->
-<!-- Library sidebar omitted for brevity -->
-
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  // --- Check if template was sent from index page ---
+document.addEventListener("DOMContentLoaded", () => {
   const storedTemplate = localStorage.getItem("wizardTemplate");
   if (storedTemplate) {
-    try {
-      // Convert DataURL to Blob for local use
-      const res = await fetch(storedTemplate);
-      const blob = await res.blob();
+    fetch(storedTemplate)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], "template.zip", { type: "application/zip" });
 
-      // Each visitor gets a separate copy: we don't overwrite any other visitor
-      const file = new File([blob], `template-${Date.now()}.zip`, { type: "application/zip" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById("zipInput").files = dt.files;
 
-      // Simulate file input upload
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      const zipInput = document.getElementById("zipInput");
-      zipInput.files = dt.files;
+        const event = new Event("change");
+        document.getElementById("zipInput").dispatchEvent(event);
 
-      // Trigger your existing logic to load template
-      zipInput.dispatchEvent(new Event("change"));
-
-      // Clear so next reload does not auto-load again
-      localStorage.removeItem("wizardTemplate");
-    } catch (err) {
-      console.error("Failed to load template from index page:", err);
-    }
+        localStorage.removeItem("wizardTemplate");
+      });
   }
+
+  // Listen to ZIP upload manually too
+  document.getElementById("zipInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const jszip = new JSZip();
+    const zip = await jszip.loadAsync(file);
+    for (const filename in zip.files) {
+      if (!zip.files[filename].dir) {
+        const content = await zip.files[filename].async("string");
+        const iframe = document.createElement("iframe");
+        iframe.style.width = "100%";
+        iframe.style.height = "500px";
+        iframe.srcdoc = content;
+        document.getElementById("iframeContainer").appendChild(iframe);
+      }
+    }
+  });
 });
 </script>
-
-<script src="main.js"></script>
-<script src="theme.js"></script>
-<script src="library.js"></script>
-
 </body>
 </html>
