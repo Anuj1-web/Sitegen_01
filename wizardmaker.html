@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wizard Maker — Full Toolbar Edition</title>
+<title>Wizard Maker — Fixed Version</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <link rel="stylesheet" href="./style.css">
@@ -11,7 +11,7 @@
 
 <div class="card">
   <h1>Wizard Maker — Full Toolbar</h1>
-  <p>Upload Any (multi-page). Double-click buttons/links/inputs to edit.</p>
+  <p>Upload any template or edit the loaded template from index page.</p>
 
   <div class="topbar">
     <input type="file" id="zipInput" accept=".zip">
@@ -22,51 +22,80 @@
   <div id="iframeContainer"></div>
 </div>
 
-<!-- Toolbar HTML -->
+<!-- Toolbar -->
 <div id="editorToolbar" style="display:none;">
-  <!-- Keep all your toolbar buttons here as before -->
+  <button id="btnUndo">⮪ Undo</button>
+  <button id="btnRedo">⮫ Redo</button>
+  <button id="btnBold"><b>B</b></button>
+  <button id="btnItalic"><i>I</i></button>
+  <button id="btnUnderline"><u>U</u></button>
+  <select id="fontSelect">
+    <option value="Arial">Arial</option>
+    <option value="Verdana">Verdana</option>
+    <option value="Tahoma">Tahoma</option>
+    <option value="Trebuchet MS">Trebuchet MS</option>
+    <option value="Times New Roman">Times New Roman</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Courier New">Courier New</option>
+    <option value="Lucida Console">Lucida Console</option>
+    <option value="Impact">Impact</option>
+    <option value="Comic Sans MS">Comic Sans MS</option>
+  </select>
+  <input type="number" id="fontSize" min="8" max="72" style="width:60px;">
+  <input id="modalText" type="text" placeholder="Text / Placeholder">
+  <select id="colorTarget">
+    <option value="auto">Auto</option>
+    <option value="text">Text Color</option>
+    <option value="background">Background</option>
+  </select>
+  <input type="color" id="modalColor" value="#000000">
+  <input type="url" id="imageUrl" placeholder="Image URL">
+  <input type="file" id="imageFile" accept="image/*">
+  <button id="btnDelete" style="background:#c00;">🗑 Delete</button>
+  <button id="saveBtn">Save</button>
+  <button id="cancelBtn">Cancel</button>
 </div>
-
-<style id="__wizard_theme">
-:root {
-  --primary-color: #0b79ff;
-  --accent-color: #06b6d4;
-  --bg-color: #ffffff;
-  --text-color: #000000;
-}
-</style>
-
-<!-- Theme Panel, Library Sidebar, Fullscreen Preview, styles remain unchanged -->
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // Grab the Base64 template from localStorage
+
+  const zipInput = document.getElementById("zipInput");
+
+  // Load template from index page Base64
   const storedTemplate = localStorage.getItem("wizardTemplate");
+  if(storedTemplate){
+    try {
+      // Convert Base64 string to binary
+      const byteString = atob(storedTemplate.split(',')[1]);
+      const arrayBuffer = new Uint8Array(byteString.length);
+      for(let i=0;i<byteString.length;i++){
+        arrayBuffer[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([arrayBuffer], { type: 'application/zip' });
+      const file = new File([blob], "template.zip", { type: "application/zip" });
 
-  if (storedTemplate) {
-    // Convert Base64 Data URL to Blob
-    const byteString = atob(storedTemplate.split(',')[1]);
-    const mimeString = storedTemplate.split(',')[0].split(':')[1].split(';')[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
+      // Assign to zipInput
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      zipInput.files = dt.files;
+
+      // Trigger change to load template
+      const event = new Event("change");
+      zipInput.dispatchEvent(event);
+
+      // Clear localStorage so other loads are independent
+      localStorage.removeItem("wizardTemplate");
+
+    } catch(e){
+      console.error("Failed to load template:", e);
     }
-    const blob = new Blob([ab], { type: mimeString });
-
-    // Wrap Blob in File object for your existing zipInput handling
-    const file = new File([blob], "template.zip", { type: "application/zip" });
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    document.getElementById("zipInput").files = dt.files;
-
-    // Trigger change event to start your wizard upload logic
-    const event = new Event("change");
-    document.getElementById("zipInput").dispatchEvent(event);
-
-    // Remove stored template so it won't auto-load again
-    localStorage.removeItem("wizardTemplate");
   }
+
+  // Prevent errors in other scripts before DOM ready
+  if(window.initMainJS){
+    window.initMainJS();
+  }
+
 });
 </script>
 
