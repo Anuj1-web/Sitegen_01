@@ -4,25 +4,99 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sitegen – Home</title>
+<link rel="stylesheet" href="style.css">
 <style>
-body { margin:0; font-family:ui-sans-serif,system-ui; background:#f3f4f6; color:#111827; display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden; }
-header { background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0; z-index:50; }
-.header-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; padding:16px 24px; }
-.brand { font-weight:700; font-size:1.5rem; }
-nav a { margin-left:16px; text-decoration:none; color:#111827; font-weight:500; }
-.btn { padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; border:none; transition:0.2s; }
-.btn-black { background:#000; color:#fff; } .btn-black:hover { opacity:0.9; transform:translateY(-1px); }
-.btn-ghost { background:transparent; border:1px solid #d1d5db; color:#111827; } .btn-ghost:hover { background:#f3f4f6; }
-
-.hero { background-color:#1e293b; color:#f8fafc; text-align:center; padding:100px 24px 60px; position:relative; overflow:hidden; }
-.hero h1 { font-size:3rem; font-weight:800; margin-bottom:16px; z-index:1; position:relative; }
-.hero p { font-size:1.25rem; color:#cbd5e1; z-index:1; position:relative; }
-
-#libraryGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:24px; max-width:1200px; margin:40px auto; padding:0 24px; }
-.card { background:#1e293b; border-radius:16px; overflow:hidden; box-shadow:0 10px 24px rgba(0,0,0,.06); cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; text-align:center; }
-.card img { width:100%; height:200px; object-fit:cover; }
-.card .card-title { color:#f8fafc; font-weight:600; margin:12px 0; }
-.card:hover { transform:translateY(-3px); box-shadow:0 18px 40px rgba(0,0,0,.25); }
+  body {
+    margin:0;
+    font-family:ui-sans-serif,system-ui;
+    background:#f3f4f6;
+    color:#111827;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  header {
+    background:#fff;
+    border-bottom:1px solid #e5e7eb;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .header-inner {
+    max-width:1200px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 24px;
+  }
+  .brand { font-weight:700; font-size:1.5rem; }
+  nav a { margin-left:16px; text-decoration:none; color:#111827; font-weight:500; }
+  .btn { padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; border:none; transition:0.2s; }
+  .btn-black { background:#000; color:#fff; }
+  .btn-black:hover { opacity:0.9; transform:translateY(-1px); }
+  .btn-ghost { background:transparent; border:1px solid #d1d5db; color:#111827; }
+  .btn-ghost:hover { background:#f3f4f6; }
+  .hero {
+    background-color:#1e293b;
+    color:#f8fafc;
+    text-align:center;
+    padding:100px 24px 60px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero h1 { font-size:3rem; font-weight:800; margin-bottom:16px; z-index:1; position:relative; }
+  .hero p { font-size:1.25rem; color:#cbd5e1; z-index:1; position:relative; }
+  .hero::before, .hero::after {
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    background:linear-gradient(135deg,#3b82f6,#9333ea);
+    opacity:0.2;
+    z-index:0;
+    animation: floatCircle 12s ease-in-out infinite alternate;
+  }
+  .hero::before { width:350px; height:350px; top:-70px; left:-70px; }
+  .hero::after { width:450px; height:450px; bottom:-100px; right:-100px; animation-delay:6s; }
+  @keyframes floatCircle { 0% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-60px) translateX(60px); } 100% { transform: translateY(0) translateX(0); } }
+  #libraryGrid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:24px;
+    max-width:1200px;
+    margin:40px auto;
+    padding:0 24px;
+  }
+  .card {
+    background:#1e293b;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 10px 24px rgba(0,0,0,.06);
+    cursor:pointer;
+    transition:transform 0.2s, box-shadow 0.2s;
+    text-align:center;
+  }
+  .card img {
+    width:100%;
+    height:200px;
+    object-fit:cover;
+  }
+  .card .card-title {
+    color:#f8fafc;
+    font-weight:600;
+    margin:12px 0;
+  }
+  .card:hover { transform:translateY(-3px); box-shadow:0 18px 40px rgba(0,0,0,.25); }
+  footer { background:#111827; color:#d1d5db; padding:40px 0; margin-top:auto; }
+  .footer-grid { display:flex; flex-wrap:wrap; max-width:1200px; margin:0 auto; padding:0 24px; gap:24px; justify-content: space-between; }
+  .footer-grid > div { flex:1 1 250px; min-width:200px; }
+  footer h4, footer h5 { color:#fff; margin-bottom:12px; }
+  footer ul { list-style:none; padding:0; margin:0; }
+  footer ul li { margin-bottom:8px; }
+  footer ul li a { color:#d1d5db; text-decoration:none; }
+  footer ul li a:hover { color:#3b82f6; }
+  .text-center { text-align:center; margin-top:20px; font-size:.875rem; color:#9ca3af; }
 </style>
 </head>
 <body>
@@ -50,86 +124,76 @@ nav a { margin-left:16px; text-decoration:none; color:#111827; font-weight:500; 
 
 <div id="libraryGrid"></div>
 
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4>Sitegen Hosting</h4>
+      <p>Reliable hosting solutions to power your online journey.</p>
+    </div>
+    <div>
+      <h5>Quick Links</h5>
+      <ul>
+        <li><a href="plans.html">Plans</a></li>
+        <li><a href="features.html">Features</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Get in Touch</h5>
+      <p>Email: support@sitegenhosting.com</p>
+      <p>Phone: +1 (800) 123-4567</p>
+    </div>
+  </div>
+  <div class="text-center">© 2025 Sitegen Hosting. All rights reserved.</div>
+</footer>
+
 <script>
-const libraryGrid = document.getElementById("libraryGrid");
+  const libraryGrid = document.getElementById("libraryGrid");
 
-// Dropbox link to the ZIP
-const dropboxLink = "https://www.dropbox.com/scl/fi/hx8simd8e8wljw0gkojck/eduflow_site.zip?dl=1";
-
-// Library array
-let library = [
-  {
-    name: "eduflow_site.zip",
+  // Direct template data
+  const template = {
+    name: "Eduflow Site",
     type: "template",
-    thumbnail: "https://via.placeholder.com/400x200?text=No+Thumbnail",
-    url: dropboxLink
-  }
-];
+    thumbnail: "https://www.dropbox.com/scl/fi/co7wz6wd4cpumzx8kx0tu/2025-09-12-162451.png?dl=1",
+    zipUrl: "https://www.dropbox.com/scl/fi/hx8simd8e8wljw0gkojck/eduflow_site.zip?dl=1"
+  };
 
-// Render function
-function renderLibrary() {
-  libraryGrid.innerHTML = "";
-
-  library.forEach((item, index) => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    const img = document.createElement("img");
-    img.src = item.thumbnail;
-    card.appendChild(img);
-
-    // Thumbnail upload
-    const uploadThumb = document.createElement("input");
-    uploadThumb.type = "file";
-    uploadThumb.accept = "image/*";
-    uploadThumb.style.display = "none";
-    uploadThumb.onchange = e => {
-      const file = e.target.files[0];
-      if(file){
-        const reader = new FileReader();
-        reader.onload = ev => {
-          item.thumbnail = ev.target.result;
-          renderLibrary();
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-    const thumbBtn = document.createElement("button");
-    thumbBtn.textContent = "Upload Thumbnail";
-    thumbBtn.className = "btn btn-black";
-    thumbBtn.onclick = () => uploadThumb.click();
-    card.appendChild(thumbBtn);
-    card.appendChild(uploadThumb);
-
-    const title = document.createElement("div");
-    title.className = "card-title";
-    title.textContent = item.name;
-    card.appendChild(title);
-
-    // On click, fetch ZIP and push to wizardmaker
-    card.onclick = async () => {
-      try {
-        const res = await fetch(item.url);
-        if(!res.ok) throw new Error("Failed to fetch template");
-        const blob = await res.blob();
+  function openInWizard() {
+    fetch(template.zipUrl)
+      .then(res => res.blob())
+      .then(blob => {
         const reader = new FileReader();
         reader.onload = () => {
           localStorage.setItem("wizardTemplate", reader.result);
           window.location.href = "wizardmaker.html";
-        }
+        };
         reader.readAsDataURL(blob);
-      } catch(err) {
-        alert("Error loading template: "+err.message);
-      }
-    }
+      })
+      .catch(err => alert("Failed to load template ZIP: " + err));
+  }
+
+  function renderTemplate() {
+    libraryGrid.innerHTML = "";
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const img = document.createElement("img");
+    img.src = template.thumbnail;
+    card.appendChild(img);
+
+    const title = document.createElement("div");
+    title.className = "card-title";
+    title.textContent = template.name;
+    card.appendChild(title);
+
+    card.onclick = openInWizard;
 
     libraryGrid.appendChild(card);
-  });
-}
+  }
 
-// Initial render
-renderLibrary();
+  renderTemplate();
 </script>
 
 </body>
