@@ -1,112 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Library Admin</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<style>
-  body { background:#fff; color:#000; }
-  .card-img { width:100%; height:150px; object-fit:cover; border-radius:0.5rem; }
-  .btn { background:black; color:white; padding:0.5rem 1rem; border-radius:0.25rem; }
-  .btn:hover{opacity:0.8;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Admin - Sitegen</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body { background: #f9fafb; color: #111827; }
+    .btn { background: black; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .btn:hover { opacity: 0.8; }
+    .card-img { width: 100%; height: 150px; object-fit: cover; border-radius: 0.5rem; }
+    h3 { margin-top: 2rem; margin-bottom: 0.5rem; }
+  </style>
 </head>
 <body class="p-6">
 
-<h1 class="text-3xl font-bold mb-4">Library Admin</h1>
+  <h1 class="text-3xl font-bold mb-4">Library Admin</h1>
 
-<div class="flex justify-end mb-4">
-  <a href="index.html" class="btn">Go to Home</a>
-</div>
+  <!-- Navigation -->
+  <div class="flex justify-end mb-4">
+    <a href="index.html" class="btn">Go to Home</a>
+  </div>
 
-<!-- Upload Section -->
-<div class="mb-6">
-  <label class="block mb-2 font-semibold">Upload Template</label>
-  <input type="file" id="zipInput" accept=".zip"><br><br>
-  <input type="file" id="thumbInput" accept="image/*"><br><br>
-  <input type="text" id="templateName" placeholder="Template Name" class="border p-2 mb-2 w-full">
-  <button id="uploadBtn" class="btn">Upload Template</button>
-</div>
+  <!-- Upload Section -->
+  <div class="mb-6">
+    <label class="block mb-2 font-semibold">Upload ZIP Template / Page / Block / Theme / Subscription</label>
+    <input type="file" id="fileInput" multiple>
+    <label class="block mt-2 mb-2 font-semibold">Optional Thumbnail (Image)</label>
+    <input type="file" id="thumbnailInput" accept="image/*">
+    <button id="uploadBtn" class="btn mt-2">Add to Library</button>
+  </div>
 
-<div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+  <!-- Download JSON -->
+  <div class="mb-6">
+    <button id="downloadJSONBtn" class="btn">Download library.json</button>
+  </div>
 
-<script>
-async function fetchLibrary() {
-  const res = await fetch('library.json');
-  return await res.json();
-}
+  <!-- Library Grid -->
+  <div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6"></div>
 
-async function saveLibrary(lib){
-  // Note: This requires server support (POST or manual update)
-  console.log("Library updated: ", lib);
-  alert("Admin: Update library.json manually or via backend.");
-}
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const thumbnailInput = document.getElementById('thumbnailInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const libraryGrid = document.getElementById('libraryGrid');
+    const downloadBtn = document.getElementById('downloadJSONBtn');
 
-async function renderLibrary(){
-  const library = await fetchLibrary();
-  const grid = document.getElementById('libraryGrid');
-  grid.innerHTML = '';
-  const categories = {};
-  library.forEach((item,index)=>{
-    if(!categories[item.type]) categories[item.type]=[];
-    categories[item.type].push({...item,index});
-  });
-  Object.keys(categories).forEach(type=>{
-    if(categories[type].length===0) return;
-    const title = document.createElement('h3');
-    title.textContent = type.charAt(0).toUpperCase()+type.slice(1)+'s';
-    title.className="text-xl font-bold mt-6 mb-4 col-span-full";
-    grid.appendChild(title);
+    // Load library from localStorage or empty array
+    let library = JSON.parse(localStorage.getItem('sitegenLibrary') || '[]');
 
-    categories[type].forEach(obj=>{
-      const {index,...item}=obj;
-      const card = document.createElement('div');
-      card.className="border p-4 rounded shadow flex flex-col items-center";
+    // Render the grid
+    function renderLibrary() {
+      libraryGrid.innerHTML = '';
 
-      const img = document.createElement('img');
-      img.src=item.thumbnail;
-      img.className="card-img mb-2";
-      card.appendChild(img);
-
-      const name = document.createElement('p');
-      name.textContent=item.name;
-      name.className="font-semibold mb-2 text-center";
-      card.appendChild(name);
-
-      grid.appendChild(card);
-    });
-  });
-}
-
-document.getElementById('uploadBtn').addEventListener('click', async ()=>{
-  const zipFile = document.getElementById('zipInput').files[0];
-  const thumbFile = document.getElementById('thumbInput').files[0];
-  const name = document.getElementById('templateName').value || 'Unnamed Template';
-  if(!zipFile || !thumbFile){ alert("Select both ZIP and Thumbnail."); return; }
-
-  const zipReader = new FileReader();
-  zipReader.onload = async (e)=>{
-    const zipBase64 = e.target.result;
-    const thumbReader = new FileReader();
-    thumbReader.onload = async (ev)=>{
-      const thumbBase64 = ev.target.result;
-      const lib = await fetchLibrary();
-      lib.push({
-        name,
-        type:"template",
-        content:zipBase64,
-        thumbnail:thumbBase64
+      const categories = {};
+      library.forEach((item, index) => {
+        if (!categories[item.type]) categories[item.type] = [];
+        categories[item.type].push({...item, index});
       });
-      await saveLibrary(lib);
-      renderLibrary();
-    };
-    thumbReader.readAsDataURL(thumbFile);
-  };
-  zipReader.readAsDataURL(zipFile);
-});
 
-renderLibrary();
-</script>
+      Object.keys(categories).forEach(type => {
+        const title = document.createElement('h3');
+        title.textContent = type.charAt(0).toUpperCase() + type.slice(1) + 's';
+        libraryGrid.appendChild(title);
+
+        categories[type].forEach(obj => {
+          const {index, ...item} = obj;
+          const card = document.createElement('div');
+          card.className = "border p-4 rounded shadow flex flex-col items-center";
+
+          // Thumbnail
+          const img = document.createElement('img');
+          img.src = item.thumbnail || 'https://via.placeholder.com/400x200?text=No+Thumbnail';
+          img.className = "card-img mb-2";
+          card.appendChild(img);
+
+          // Name
+          const name = document.createElement('p');
+          name.textContent = item.name;
+          name.className = "font-semibold mb-2 text-center";
+          card.appendChild(name);
+
+          // Delete button
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.className = 'btn bg-red-600 hover:bg-red-700';
+          deleteBtn.onclick = () => {
+            if(confirm(`Are you sure you want to delete "${item.name}"?`)){
+              library.splice(index, 1);
+              localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+              renderLibrary();
+            }
+          };
+          card.appendChild(deleteBtn);
+
+          libraryGrid.appendChild(card);
+        });
+      });
+    }
+
+    // Upload Handler
+    uploadBtn.onclick = async () => {
+      const files = Array.from(fileInput.files);
+      const thumbFile = thumbnailInput.files[0] || null;
+
+      if (!files.length) return alert('Select at least one file!');
+
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          let type = 'asset';
+          if(file.name.endsWith('.zip')) type='template';
+          else if(file.name.endsWith('.html')) type='page';
+          else if(file.name.endsWith('.block')) type='block';
+          else if(file.name.endsWith('.theme')) type='theme';
+          else if(file.name.endsWith('.sub')) type='subscription';
+
+          if (thumbFile) {
+            const thumbReader = new FileReader();
+            thumbReader.onload = t => {
+              library.push({
+                name: file.name,
+                type,
+                content: e.target.result,
+                thumbnail: t.target.result
+              });
+              localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+              renderLibrary();
+            };
+            thumbReader.readAsDataURL(thumbFile);
+          } else {
+            library.push({
+              name: file.name,
+              type,
+              content: e.target.result,
+              thumbnail: null
+            });
+            localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+            renderLibrary();
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      fileInput.value = '';
+      thumbnailInput.value = '';
+    };
+
+    // Download JSON
+    downloadBtn.onclick = () => {
+      const blob = new Blob([JSON.stringify(library, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'library.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    renderLibrary();
+  </script>
 </body>
 </html>
