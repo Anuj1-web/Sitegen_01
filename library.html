@@ -28,7 +28,11 @@
     <progress id="uploadProgress" value="0" max="100" class="w-full mb-4"></progress>
     <button id="uploadBtn" class="btn">Upload</button>
   </div>
-
+<div class="flex flex-col">
+    <label class="block mb-2 font-semibold">Or sync from cloud</label>
+    <button id="syncDropboxBtn" class="btn bg-blue-600 hover:bg-blue-700">🔄 Sync from Dropbox</button>
+  </div>
+</div>
   <!-- Library Grid -->
   <div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6"></div>
 
@@ -163,5 +167,130 @@
       renderLibrary();
     });
   </script>
+  <script>
+async function syncFromDropbox() {
+  const accessToken = "<script>
+async function syncFromDropbox() {
+  const accessToken = "sl.u.AF9cgRJ3fvWb6CEHGGqtce9bI6q0HmKQILuFRmnH81UBItdZke5M6SRwTaw_pUkHesqNVWTUZWaiyZMAqi5dH0_Jj0p_dZ_FgZokJ3EmzqiH2pCGScmLra0LTNyUlArmpDZ2cpmP8StsUZ0HTY3oG42xM4WqKwTsBnoOXA870EhZ5n4SE_zId8qI-X7gw5Tf_ROP00XLB8E3m08bTV_0S-d2zdQIQiOJTiQ7iqiJtnmCSBHfoKJ8HUoA-77YfQvxnY5XmsQvyYlafKww5w6qAE0J-ClwUHXaKcwHaTGMJW-zs1p0Fqu_TAgoLqbYY5FCkQQ5ZshJDP2HJMsM4q53_cjw7r58vScJJikNgCjq7g9_9dnCbn2geGe_PkbtVMG6PCC0DCb8nhZAB-YghPV2jiKmkRFNW18Duj0uLMQyHMsKVZXsBeVEAEx6yhD2IjsXIWh4V9wYaqppJTsB825z27V4irVP1SsJWe6ENiQEn7ZZoycwQ_GVsMMh-3Pcwj6umkNmYyjqtwPAMDZXLFhq_lgXcg30DEaMyf2wURlh8zBQzQDB8wj0awZda8aGj5gwCIOGaa5I2ZGFzYc5avRcUywtQymv_zPL8d-k3T2nKivDdhcll1SXb3LZvsYJ0shX3wp7CwKW8oRB34oCw8SD_gzIbUFNTAetMKGkWMy4Vx6ZW-ckFjkoBkeuAjKIulJUmxZNzyqCxXrXt0QlREr-RHCH-V7gORU3qZXEbrCpTnAZT75aUUYM84bEYLPY5SzPeu_epBch_4iilwmzXJoZWf_pF7dFr1ntBO-OYut2qvIerXh1DJLzFtKSGZONC29EEg9AuwvvyjZMKFb22E8U3-EFeXEsNNWT3Ncqgg0WJu8PfchL1DzVEB0oGTdRst0bcbJkx4l22q2tVpTFmAu-cKNv9iQAeCUZ6h0WWKAhwqUHPQ4OokWcVigZUWAR2ECPfWj1ch5r7onOPp21Pxrowb2JxpqkfevEbf4wDCOFiU9iB8eg_WzE-n-RK1X20XLEMV616Xani7l-B96tDoXFB9BDbNtCtLr6Pq4IphQbfjROvlmFoUBckS2wjtMEgYzMQN8pY38kJG92KR47487A1VIEWz2k9O3LKFtr7CTbMk7j-cE7mrSLflcY4UU63iVEg-3rvZkXDi2vGORXQPSMCERucDvTnHse8A0UboeulK4W4_70liQ1ntda5YJT02zAgJfCZbOZE6Vxj6F07cQMHlGGZ34Au7D2uTk8RCICsmAa8yY5DF94t4-ZMzOi-6nmSYHPO6zr0p87szBOIR0TnK8R-R-qFgJu5MqGR-DH7Kl2SnMOd0bMGcphhkeQhEELt_2CxIqzHf_AqrnOGnkveH6QGTd5uIjpSi-HoLp2nUMxAETSxMgCOMLiVarwIYDw1sfox-dYJLjfa_09xFZ0qirHzucQYJbZZ369KvvO-lCXoa57YOoW2Xnv7RazlohpQ47YQRCLiDXxUXZlt5nWrrgL"; //
+  const folderPath = "/Sitegen_01"; // Dropbox app folder name
+
+  // Step 1: List files in the folder
+  const res = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + accessToken,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ path: folderPath })
+  });
+
+  const data = await res.json();
+  if (!data.entries) {
+    alert("❌ Dropbox error: " + JSON.stringify(data));
+    return;
+  }
+
+  let library = JSON.parse(localStorage.getItem('sitegenLibrary') || '[]');
+  let addedCount = 0;
+
+  // Step 2: Loop through files and fetch zips
+  for (const file of data.entries) {
+    if (file.name.endsWith(".zip")) {
+      // Skip if already exists
+      if (library.some(item => item.name === file.name)) continue;
+
+      const dlRes = await fetch("https://content.dropboxapi.com/2/files/download", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + accessToken,
+          "Dropbox-API-Arg": JSON.stringify({ path: file.path_lower })
+        }
+      });
+
+      const blob = await dlRes.blob();
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        library.push({
+          name: file.name,
+          type: "template",
+          content: e.target.result,
+          thumbnail: null
+        });
+        localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+        addedCount++;
+        if (addedCount > 0) {
+          alert(`✅ Synced ${addedCount} new template(s) from Dropbox`);
+          location.reload();
+        }
+      };
+      reader.readAsDataURL(blob);
+    }
+  }
+}
+
+document.getElementById("syncDropboxBtn").addEventListener("click", syncFromDropbox);
+</script>
+"; // replace with your real token
+  const folderPath = "/Sitegen_01"; // Dropbox app folder name
+
+  // Step 1: List files in the folder
+  const res = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + accessToken,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ path: folderPath })
+  });
+
+  const data = await res.json();
+  if (!data.entries) {
+    alert("❌ Dropbox error: " + JSON.stringify(data));
+    return;
+  }
+
+  let library = JSON.parse(localStorage.getItem('sitegenLibrary') || '[]');
+  let addedCount = 0;
+
+  // Step 2: Loop through files and fetch zips
+  for (const file of data.entries) {
+    if (file.name.endsWith(".zip")) {
+      // Skip if already exists
+      if (library.some(item => item.name === file.name)) continue;
+
+      const dlRes = await fetch("https://content.dropboxapi.com/2/files/download", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + accessToken,
+          "Dropbox-API-Arg": JSON.stringify({ path: file.path_lower })
+        }
+      });
+
+      const blob = await dlRes.blob();
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        library.push({
+          name: file.name,
+          type: "template",
+          content: e.target.result,
+          thumbnail: null
+        });
+        localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+        addedCount++;
+        if (addedCount > 0) {
+          alert(`✅ Synced ${addedCount} new template(s) from Dropbox`);
+          location.reload();
+        }
+      };
+      reader.readAsDataURL(blob);
+    }
+  }
+}
+
+document.getElementById("syncDropboxBtn").addEventListener("click", syncFromDropbox);
+</script>
+
 </body>
 </html>
