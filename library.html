@@ -172,47 +172,95 @@
     });
   </script>
 <script>
-  document.getElementById("loadDropboxZipBtn").onclick = async function() {
-    const statusEl = document.getElementById("syncStatus");
-    statusEl.textContent = "🔄 Loading ZIP from Dropbox...";
+window.addEventListener('DOMContentLoaded', () => {
+  const libraryGrid = document.getElementById('libraryGrid');
 
-    try {
-      // Direct download link (dl=1 forces download)
-      const url = "https://www.dropbox.com/scl/fi/hx8simd8e8wljw0gkojck/eduflow_site.zip?dl=1";
-      const res = await fetch(url);
+  // Load library from localStorage
+  let library = JSON.parse(localStorage.getItem('sitegenLibrary') || '[]');
 
-      if (!res.ok) throw new Error("Failed to fetch the ZIP");
+  // Check if our Dropbox ZIP is already in library
+  const dropboxZipName = 'eduflow_site.zip';
+  if (!library.find(item => item.name === dropboxZipName)) {
+    // Embed Dropbox ZIP as Base64
+    const dropboxZipBase64 = 'data:application/zip;base64,UEsDBB...'; // <-- PUT YOUR BASE64 HERE
 
-      const blob = await res.blob();
-      const reader = new FileReader();
+    library.push({
+      name: dropboxZipName,
+      type: 'template',
+      content: dropboxZipBase64,
+      thumbnail: null
+    });
 
-      reader.onload = e => {
-        let library = JSON.parse(localStorage.getItem("sitegenLibrary") || "[]");
+    localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+  }
 
-        // Add the Dropbox ZIP to library
-        library.push({
-          name: "eduflow_site.zip",
-          type: "template",
-          content: e.target.result,
-          thumbnail: null
-        });
+  // --- Render Library Grid ---
+  function renderLibrary() {
+    libraryGrid.innerHTML = '';
 
-        localStorage.setItem("sitegenLibrary", JSON.stringify(library));
+    library.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'border p-4 rounded shadow flex flex-col items-center';
 
-        // Refresh the library display
-        if (typeof renderLibrary === "function") renderLibrary();
+      // Thumbnail
+      const img = document.createElement('img');
+      img.src = item.thumbnail || 'https://via.placeholder.com/400x200?text=No+Thumbnail';
+      img.className = 'card-img mb-2';
+      card.appendChild(img);
 
-        statusEl.textContent = "✅ Dropbox ZIP loaded successfully!";
+      // Name
+      const name = document.createElement('p');
+      name.textContent = item.name;
+      name.className = 'font-semibold mb-2 text-center';
+      card.appendChild(name);
+
+      // Upload Thumbnail
+      const uploadThumbInput = document.createElement('input');
+      uploadThumbInput.type = 'file';
+      uploadThumbInput.accept = 'image/*';
+      uploadThumbInput.className = 'hidden';
+      uploadThumbInput.onchange = e => {
+        const file = e.target.files[0];
+        if(file){
+          const reader = new FileReader();
+          reader.onload = ev => {
+            library[index].thumbnail = ev.target.result;
+            localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+            renderLibrary();
+          };
+          reader.readAsDataURL(file);
+        }
       };
 
-      reader.readAsDataURL(blob);
+      const uploadBtn = document.createElement('button');
+      uploadBtn.textContent = 'Upload Thumbnail';
+      uploadBtn.className = 'btn mb-2';
+      uploadBtn.onclick = () => uploadThumbInput.click();
 
-    } catch (err) {
-      console.error(err);
-      statusEl.textContent = "❌ Error: " + err.message;
-    }
-  };
+      card.appendChild(uploadBtn);
+      card.appendChild(uploadThumbInput);
+
+      // Delete button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent='Delete';
+      deleteBtn.className='btn bg-red-600 hover:bg-red-700';
+      deleteBtn.onclick = ()=> {
+        if(confirm(`Are you sure you want to delete "${item.name}"?`)){
+          library.splice(index,1);
+          localStorage.setItem('sitegenLibrary', JSON.stringify(library));
+          renderLibrary();
+        }
+      };
+      card.appendChild(deleteBtn);
+
+      libraryGrid.appendChild(card);
+    });
+  }
+
+  renderLibrary();
+});
 </script>
+
 
 
 </body>
