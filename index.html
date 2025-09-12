@@ -1,42 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sitegen – Home</title>
-<style>
-body { font-family: sans-serif; background:#f3f4f6; display:flex; flex-direction:column; align-items:center; padding:50px; }
-.card { cursor:pointer; width:400px; border-radius:12px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1); margin-bottom:24px; text-align:center; }
-.card img { width:100%; height:200px; object-fit:cover; }
-.card-title { font-weight:600; margin:12px 0; font-size:1.1rem; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sitegen – Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background: #111827;
+      color: #fff;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    #libraryGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 40px;
+      width: 100%;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.2s;
+      box-shadow: 0 10px 24px rgba(0,0,0,.06);
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .card .card-title {
+      color: #f8fafc;
+      font-weight: 600;
+      margin: 12px 0;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.25);
+    }
+  </style>
 </head>
 <body>
 
-<div class="card" id="templateCard">
-  <img src="https://www.dropbox.com/scl/fi/co7wz6wd4cpumzx8kx0tu/2025-09-12-162451.png?dl=1" alt="Template Thumbnail">
-  <div class="card-title">Eduflow Site Template</div>
+<header>Sitegen Hosting</header>
+
+<div id="libraryGrid">
+  <div class="card" id="templateCard">
+    <img src="https://www.dropbox.com/scl/fi/co7wz6wd4cpumzx8kx0tu/2025-09-12-162451.png?dl=1" alt="Template Thumbnail">
+    <div class="card-title">EduFlow Template</div>
+  </div>
 </div>
 
 <script>
-  // Base64 ZIP of your template (replace with real Base64 of your ZIP)
-  const templateZipBase64 = "data:application/zip;base64,UEsDBB..."; 
+  document.getElementById("templateCard").addEventListener("click", () => {
+    // Set the template for wizardmaker
+    const templateZipLink = "https://www.dropbox.com/scl/fi/hx8simd8e8wljw0gkojck/eduflow_site.zip?dl=1";
+    localStorage.setItem("wizardTemplate", templateZipLink);
 
-  document.getElementById("templateCard").onclick = () => {
-    const byteString = atob(templateZipBase64.split(',')[1]);
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-    const blob = new Blob([ab], { type: "application/zip" });
-
-    // Store in localStorage to be loaded by wizardmaker.html
-    const reader = new FileReader();
-    reader.onload = () => {
-      localStorage.setItem("wizardTemplate", reader.result);
-      window.location.href = "wizardmaker.html";
-    };
-    reader.readAsDataURL(blob);
-  };
+    // Redirect to wizardmaker
+    window.location.href = "wizardmaker.html";
+  });
 </script>
 
 </body>
