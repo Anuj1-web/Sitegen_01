@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Page Fixed</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/cropperjs/dist/cropper.min.css" rel="stylesheet"/>
+  <style>
+    body { background: #fff; color: #000; }
+    .btn { background: black; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .btn:hover { opacity: 0.8; }
+    .card-img { width: 100%; height: 150px; object-fit: cover; border-radius: 0.5rem; }
+  </style>
+</head>
+<body class="p-6">
+  <h1 class="text-3xl font-bold mb-4">Library</h1>
+
+  <!-- Navigation Button -->
+  <div class="flex justify-end">
+    <a href="index.html" class="btn">Go to Home</a>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="mb-6">
+    <label class="block mb-2 font-semibold">Upload Template / Block / Theme / Subscription / HTML Page</label>
+    <input type="file" id="fileInput" class="mb-4 border p-2" multiple>
+    <progress id="uploadProgress" value="0" max="100" class="w-full mb-4"></progress>
+    <button id="uploadBtn" class="btn">Upload</button>
+  </div>
+
+  <!-- Library Grid -->
+  <div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6"></div>
+
+  <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const fileInput = document.getElementById('fileInput');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const uploadProgress = document.getElementById('uploadProgress');
+      const libraryGrid = document.getElementById('libraryGrid');
+
+      let library = JSON.parse(localStorage.getItem('sitegenLibrary') || '[]');
+
+      // --- Render Library Grid ---
+      function renderLibrary() {
+        libraryGrid.innerHTML = '';
+
+        // Group items by type
+        const categories = {
+          page: [],
+          template: [],
+          block: [],
+          theme: [],
+          subscription: [],
+          asset: []
+        };
+
+        library.forEach((item,index)=>{
+          if(!categories[item.type]) categories[item.type]=[];
+          categories[item.type].push({...item,index});
+        });
+
+        Object.keys(categories).forEach(type=>{
+          if(categories[type].length===0) return;
+
+          const title = document.createElement('h3');
+          title.textContent = type.charAt(0).toUpperCase()+type.slice(1)+'s';
+          title.className = "text-xl font-bold mt-6 mb-4 col-span-full";
+          libraryGrid.appendChild(title);
+
+          categories[type].forEach(obj=>{
+            const {index, ...item} = obj;
+            const card = document.createElement('div');
+            card.className = "border p-4 rounded shadow flex flex-col items-center";
+
+            // Thumbnail
+            const img = document.createElement('img');
+            img.src = item.thumbnail || 'https://via.placeholder.com/400x200?text=No+Thumbnail';
+            img.className = "card-img mb-2";
+            card.appendChild(img);
+
+            // Name
+            const name = document.createElement('p');
+            name.textContent = item.name;
+            name.className = "font-semibold mb-2 text-center";
+            card.appendChild(name);
+
+            // Upload Thumbnail
+            const uploadThumbInput = document.createElement('input');
+            uploadThumbInput.type = "file";
+            uploadThumbInput.accept = "image/*";
+            uploadThumbInput.className = "hidden";
+            uploadThumbInput.onchange = e => {
+              const file = e.target.files[0];
+              if(file){
+                const reader = new FileReader();
+                reader.onload = ev => {
+                  library[index].thumbnail = ev.target.result;
+                  localStorage.setItem('sitegenLibrary',JSON.stringify(library));
+                  renderLibrary();
+                };
+                reader.readAsDataURL(file);
+              }
+            };
+
+            const uploadBtn = document.createElement('button');
+            uploadBtn.textContent = "Upload Thumbnail";
+            uploadBtn.className = "btn mb-2";
+            uploadBtn.onclick = () => uploadThumbInput.click();
+
+            card.appendChild(uploadBtn);
+            card.appendChild(uploadThumbInput);
+
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent='Delete';
+            deleteBtn.className='btn bg-red-600 hover:bg-red-700';
+            deleteBtn.onclick = ()=>{
+              if(confirm(`Are you sure you want to delete "${item.name}"?`)){
+                library.splice(index,1);
+                localStorage.setItem('sitegenLibrary',JSON.stringify(library));
+                renderLibrary();
+              }
+            };
+            card.appendChild(deleteBtn);
+
+            libraryGrid.appendChild(card);
+          });
+        });
+      }
+
+      // --- Unified Upload Handler ---
+      uploadBtn.onclick = async ()=>{
+        const files = Array.from(fileInput.files);
+        if(!files.length) return;
+
+        let uploaded=0;
+        for(const file of files){
+          const reader = new FileReader();
+          reader.onload = e=>{
+            let type='asset';
+            if(file.name.endsWith('.html')) type='page';
+            else if(file.name.endsWith('.zip')) type='template';
+            else if(file.name.endsWith('.block')) type='block';
+            else if(file.name.endsWith('.theme')) type='theme';
+            else if(file.name.endsWith('.sub')) type='subscription';
+
+            library.push({name:file.name, type, content:e.target.result, thumbnail:null});
+            uploaded++;
+            uploadProgress.value = (uploaded/files.length)*100;
+
+            if(uploaded===files.length){
+              localStorage.setItem('sitegenLibrary',JSON.stringify(library));
+              renderLibrary();
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      renderLibrary();
+    });
+  </script>
+</body>
+</html>
