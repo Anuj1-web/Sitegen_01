@@ -2,58 +2,77 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wizard Maker</title>
+<title>Wizard Maker — Full Toolbar Edition</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="card">
-    <h1>Wizard Maker — Full Editor</h1>
+
+<div class="card">
+  <h1>Wizard Maker — Full Toolbar</h1>
+  <p>Upload Any (multi-page). Double-click buttons/links/inputs to edit.</p>
+
+  <div class="topbar">
     <input type="file" id="zipInput" accept=".zip">
-    <button id="exportBtn">Export ZIP</button>
-    <div id="tabs"></div>
-    <div id="iframeContainer"></div>
+    <button id="exportBtn">⬇ Export ZIP</button>
   </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="iframeContainer"></div>
+</div>
+
+<!-- Toolbar HTML -->
+<div id="editorToolbar" style="display:none;">
+  <!-- Keep all your toolbar buttons here as before -->
+</div>
+
+<style id="__wizard_theme">
+:root {
+  --primary-color: #0b79ff;
+  --accent-color: #06b6d4;
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+</style>
+
+<!-- Theme Panel, Library Sidebar, Fullscreen Preview, styles remain unchanged -->
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // Grab the Base64 template from localStorage
   const storedTemplate = localStorage.getItem("wizardTemplate");
+
   if (storedTemplate) {
-    fetch(storedTemplate)
-      .then(res => res.blob())
-      .then(blob => {
-        const file = new File([blob], "template.zip", { type: "application/zip" });
-
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        document.getElementById("zipInput").files = dt.files;
-
-        const event = new Event("change");
-        document.getElementById("zipInput").dispatchEvent(event);
-
-        localStorage.removeItem("wizardTemplate");
-      });
-  }
-
-  // Listen to ZIP upload manually too
-  document.getElementById("zipInput").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const jszip = new JSZip();
-    const zip = await jszip.loadAsync(file);
-    for (const filename in zip.files) {
-      if (!zip.files[filename].dir) {
-        const content = await zip.files[filename].async("string");
-        const iframe = document.createElement("iframe");
-        iframe.style.width = "100%";
-        iframe.style.height = "500px";
-        iframe.srcdoc = content;
-        document.getElementById("iframeContainer").appendChild(iframe);
-      }
+    // Convert Base64 Data URL to Blob
+    const byteString = atob(storedTemplate.split(',')[1]);
+    const mimeString = storedTemplate.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
     }
-  });
+    const blob = new Blob([ab], { type: mimeString });
+
+    // Wrap Blob in File object for your existing zipInput handling
+    const file = new File([blob], "template.zip", { type: "application/zip" });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById("zipInput").files = dt.files;
+
+    // Trigger change event to start your wizard upload logic
+    const event = new Event("change");
+    document.getElementById("zipInput").dispatchEvent(event);
+
+    // Remove stored template so it won't auto-load again
+    localStorage.removeItem("wizardTemplate");
+  }
 });
 </script>
+
+<script src="main.js"></script>
+<script src="theme.js"></script>
+<script src="library.js"></script>
+
 </body>
 </html>
