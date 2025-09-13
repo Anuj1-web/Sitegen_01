@@ -94,31 +94,39 @@
 
 <script>
 fetch('/api/library/templates')
-  .then(res => res.json())
+  .then(res => {
+    if(!res.ok) throw new Error('Failed to fetch templates');
+    return res.json();
+  })
   .then(library => {
     const grid = document.getElementById('libraryGrid');
+    grid.innerHTML = ''; // Clear previous content
+
     library.forEach(item => {
       const card = document.createElement('div');
       card.className = 'card';
-      
+
       const img = document.createElement('img');
-      img.src = item.thumbnail ? `data:image/png;base64,${item.thumbnail}` : 'https://via.placeholder.com/400x200';
+      img.src = item.thumbnail
+        ? `data:image/png;base64,${item.thumbnail}`
+        : 'https://via.placeholder.com/400x200';
       card.appendChild(img);
 
       const title = document.createElement('div');
       title.className = 'card-title';
-      title.textContent = item.name;
+      title.textContent = item.name || 'Unnamed Template';
       card.appendChild(title);
 
       card.onclick = () => {
+        // Store content as DataURL for wizardmaker
         localStorage.setItem('wizardTemplate', `data:application/zip;base64,${item.content}`);
         window.location.href = 'wizardmaker.html';
       };
 
       grid.appendChild(card);
     });
-  });
-
+  })
+  .catch(err => console.error('Error loading templates:', err));
 </script>
 
 </body>
