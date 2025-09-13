@@ -169,29 +169,36 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const storedTemplate = localStorage.getItem("wizardTemplate");
-  if (storedTemplate) {
-    // Convert DataURL back to blob
-    fetch(storedTemplate)
-      .then(res => res.blob())
-      .then(blob => {
-        const file = new File([blob], "template.zip", { type: "application/zip" });
-        
-        // Simulate upload to zipInput
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        document.getElementById("zipInput").files = dt.files;
+  // Get template ID or Base64 content from URL query instead of localStorage
+  const params = new URLSearchParams(window.location.search);
+  const templateId = params.get("templateId"); // e.g., index.html passes ?templateId=123
 
-        // Trigger the same logic as manual upload
-        const event = new Event("change");
-        document.getElementById("zipInput").dispatchEvent(event);
+  if (!templateId) return;
 
-        // Clear so it doesn’t auto-load again next time
-        localStorage.removeItem("wizardTemplate");
-      });
-  }
+  // Fetch template content from server
+  fetch(`/api/library/template/${templateId}`)
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load template");
+      return res.json();
+    })
+    .then(data => {
+      const base64Content = data.content; // Base64 ZIP from DB
+      const blob = new Blob([Uint8Array.from(atob(base64Content), c => c.charCodeAt(0))], { type: "application/zip" });
+      const file = new File([blob], "template.zip", { type: "application/zip" });
+
+      // Simulate upload to zipInput
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      document.getElementById("zipInput").files = dt.files;
+
+      // Trigger the same logic as manual upload
+      const event = new Event("change");
+      document.getElementById("zipInput").dispatchEvent(event);
+    })
+    .catch(err => console.error("Error loading template:", err));
 });
 </script>
+
 
   <script src="main.js"></script>
    <script src="theme.js"></script>
@@ -200,3 +207,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
