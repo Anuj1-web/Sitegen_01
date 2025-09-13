@@ -11,6 +11,8 @@
     .btn:hover { opacity: 0.8; }
     .card-img { width: 100%; height: 150px; object-fit: cover; border-radius: 0.5rem; }
     h3 { margin-top: 2rem; margin-bottom: 0.5rem; }
+    .btn-red { background: #dc2626; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem; }
+    .btn-red:hover { background: #b91c1c; }
   </style>
 </head>
 <body class="p-6">
@@ -25,15 +27,10 @@
   <!-- Upload Section -->
   <div class="mb-6">
     <label class="block mb-2 font-semibold">Upload ZIP Template / Page / Block / Theme / Subscription</label>
-    <input type="file" id="fileInput" multiple>
+    <input type="file" id="fileInput">
     <label class="block mt-2 mb-2 font-semibold">Optional Thumbnail (Image)</label>
     <input type="file" id="thumbnailInput" accept="image/*">
     <button id="uploadBtn" class="btn mt-2">Add to Library</button>
-  </div>
-
-  <!-- Download JSON -->
-  <div class="mb-6">
-    <button id="downloadJSONBtn" class="btn">Download library.json</button>
   </div>
 
   <!-- Library Grid -->
@@ -51,6 +48,7 @@ async function renderLibrary() {
 
   try {
     const res = await fetch('/api/library/all');
+    if (!res.ok) throw new Error('Failed to fetch library');
     const library = await res.json();
 
     const categories = {};
@@ -83,7 +81,7 @@ async function renderLibrary() {
         // Delete button
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete';
-        deleteBtn.className = 'btn bg-red-600 hover:bg-red-700';
+        deleteBtn.className = 'btn-red';
         deleteBtn.onclick = async () => {
           if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
             const delRes = await fetch(`/api/library/delete/${item.id}`, { method: 'DELETE' });
@@ -104,10 +102,12 @@ async function renderLibrary() {
 
 // Upload Handler
 uploadBtn.onclick = async () => {
-  if (!fileInput.files.length) return alert('Select at least one file!');
+  if (!fileInput.files.length) return alert('Select a file!');
 
   const formData = new FormData();
   formData.append('file', fileInput.files[0]);
+  formData.append('name', fileInput.files[0].name);
+  formData.append('type', 'template'); // Default type, can add selector later
   if (thumbnailInput.files[0]) formData.append('thumbnail', thumbnailInput.files[0]);
 
   try {
@@ -123,7 +123,7 @@ uploadBtn.onclick = async () => {
       thumbnailInput.value = '';
       renderLibrary();
     } else {
-      alert('Upload failed');
+      alert('Upload failed: ' + (data.error || 'Unknown error'));
     }
 
   } catch (err) {
