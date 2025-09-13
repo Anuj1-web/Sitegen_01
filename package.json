@@ -1,7 +1,7 @@
 {
-  "name": "sitegen-app",
+  "name": "sitegen",
   "version": "1.0.0",
-  "description": "Sitegen project with library, wizard, and templates connected to PostgreSQL",
+  "description": "Sitegen project with admin library, index, and wizardmaker",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,13 +11,11 @@
   "author": "Your Name",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "multer": "^1.4.5-lts.1",
-    "pg": "^8.11.1"
+    "pg": "^8.12.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.1"
   }
 }
