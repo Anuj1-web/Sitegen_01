@@ -1,5 +1,33 @@
-# Node.js
+# Node.js dependencies
 node_modules/
-.env
-.DS_Store
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build output (if any)
+dist/
+build/
+
+# Optional editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Mac/Linux swap files
+*.swp
