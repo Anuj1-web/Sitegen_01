@@ -39,126 +39,102 @@
   <!-- Library Grid -->
   <div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6"></div>
 
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const thumbnailInput = document.getElementById('thumbnailInput');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const libraryGrid = document.getElementById('libraryGrid');
-    const downloadBtn = document.getElementById('downloadJSONBtn');
+<script>
+const fileInput = document.getElementById('fileInput');
+const thumbnailInput = document.getElementById('thumbnailInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const libraryGrid = document.getElementById('libraryGrid');
 
-    // Load library from localStorage or empty array
-    let library = JSON.parse(localStorage.getItem('sitegenLibrary') || '[]');
+// Render library from database
+async function renderLibrary() {
+  libraryGrid.innerHTML = '';
 
-    // Render the grid
-    function renderLibrary() {
-      libraryGrid.innerHTML = '';
+  try {
+    const res = await fetch('/api/library/all');
+    const library = await res.json();
 
-      const categories = {};
-      library.forEach((item, index) => {
-        if (!categories[item.type]) categories[item.type] = [];
-        categories[item.type].push({...item, index});
-      });
+    const categories = {};
+    library.forEach(item => {
+      if (!categories[item.type]) categories[item.type] = [];
+      categories[item.type].push(item);
+    });
 
-      Object.keys(categories).forEach(type => {
-        const title = document.createElement('h3');
-        title.textContent = type.charAt(0).toUpperCase() + type.slice(1) + 's';
-        libraryGrid.appendChild(title);
+    Object.keys(categories).forEach(type => {
+      const title = document.createElement('h3');
+      title.textContent = type.charAt(0).toUpperCase() + type.slice(1) + 's';
+      libraryGrid.appendChild(title);
 
-        categories[type].forEach(obj => {
-          const {index, ...item} = obj;
-          const card = document.createElement('div');
-          card.className = "border p-4 rounded shadow flex flex-col items-center";
+      categories[type].forEach(item => {
+        const card = document.createElement('div');
+        card.className = "border p-4 rounded shadow flex flex-col items-center";
 
-          // Thumbnail
-          const img = document.createElement('img');
-          img.src = item.thumbnail || 'https://via.placeholder.com/400x200?text=No+Thumbnail';
-          img.className = "card-img mb-2";
-          card.appendChild(img);
+        // Thumbnail
+        const img = document.createElement('img');
+        img.src = item.thumbnail ? `data:image/png;base64,${item.thumbnail}` : 'https://via.placeholder.com/400x200?text=No+Thumbnail';
+        img.className = "card-img mb-2";
+        card.appendChild(img);
 
-          // Name
-          const name = document.createElement('p');
-          name.textContent = item.name;
-          name.className = "font-semibold mb-2 text-center";
-          card.appendChild(name);
+        // Name
+        const name = document.createElement('p');
+        name.textContent = item.name;
+        name.className = "font-semibold mb-2 text-center";
+        card.appendChild(name);
 
-          // Delete button
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'Delete';
-          deleteBtn.className = 'btn bg-red-600 hover:bg-red-700';
-          deleteBtn.onclick = () => {
-            if(confirm(`Are you sure you want to delete "${item.name}"?`)){
-              library.splice(index, 1);
-              localStorage.setItem('sitegenLibrary', JSON.stringify(library));
-              renderLibrary();
-            }
-          };
-          card.appendChild(deleteBtn);
-
-          libraryGrid.appendChild(card);
-        });
-      });
-    }
-
-    // Upload Handler
-    uploadBtn.onclick = async () => {
-      const files = Array.from(fileInput.files);
-      const thumbFile = thumbnailInput.files[0] || null;
-
-      if (!files.length) return alert('Select at least one file!');
-
-      for (const file of files) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          let type = 'asset';
-          if(file.name.endsWith('.zip')) type='template';
-          else if(file.name.endsWith('.html')) type='page';
-          else if(file.name.endsWith('.block')) type='block';
-          else if(file.name.endsWith('.theme')) type='theme';
-          else if(file.name.endsWith('.sub')) type='subscription';
-
-          if (thumbFile) {
-            const thumbReader = new FileReader();
-            thumbReader.onload = t => {
-              library.push({
-                name: file.name,
-                type,
-                content: e.target.result,
-                thumbnail: t.target.result
-              });
-              localStorage.setItem('sitegenLibrary', JSON.stringify(library));
-              renderLibrary();
-            };
-            thumbReader.readAsDataURL(thumbFile);
-          } else {
-            library.push({
-              name: file.name,
-              type,
-              content: e.target.result,
-              thumbnail: null
-            });
-            localStorage.setItem('sitegenLibrary', JSON.stringify(library));
-            renderLibrary();
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'btn bg-red-600 hover:bg-red-700';
+        deleteBtn.onclick = async () => {
+          if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
+            const delRes = await fetch(`/api/library/delete/${item.id}`, { method: 'DELETE' });
+            if (delRes.ok) renderLibrary();
+            else alert('Failed to delete item.');
           }
         };
-        reader.readAsDataURL(file);
-      }
+        card.appendChild(deleteBtn);
 
+        libraryGrid.appendChild(card);
+      });
+    });
+
+  } catch (err) {
+    console.error('Failed to load library', err);
+  }
+}
+
+// Upload Handler
+uploadBtn.onclick = async () => {
+  if (!fileInput.files.length) return alert('Select at least one file!');
+
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  if (thumbnailInput.files[0]) formData.append('thumbnail', thumbnailInput.files[0]);
+
+  try {
+    const res = await fetch('/api/library/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert('Uploaded successfully!');
       fileInput.value = '';
       thumbnailInput.value = '';
-    };
+      renderLibrary();
+    } else {
+      alert('Upload failed');
+    }
 
-    // Download JSON
-    downloadBtn.onclick = () => {
-      const blob = new Blob([JSON.stringify(library, null, 2)], {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'library.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    };
+  } catch (err) {
+    console.error('Upload error', err);
+    alert('Upload failed');
+  }
+};
 
-    renderLibrary();
-  </script>
+// Initial render
+renderLibrary();
+</script>
+
 </body>
 </html>
