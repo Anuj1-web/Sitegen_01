@@ -93,41 +93,32 @@
 </footer>
 
 <script>
-// Load templates from local library.json
-fetch('library.json')
+fetch('/api/library/templates')
   .then(res => res.json())
   .then(library => {
     const grid = document.getElementById('libraryGrid');
     library.forEach(item => {
-      if(item.type === 'template') {
-        const card = document.createElement('div');
-        card.className = 'card';
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      const img = document.createElement('img');
+      img.src = item.thumbnail ? `data:image/png;base64,${item.thumbnail}` : 'https://via.placeholder.com/400x200';
+      card.appendChild(img);
 
-        const img = document.createElement('img');
-        img.src = item.thumbnail || 'https://via.placeholder.com/400x200?text=No+Thumbnail';
-        card.appendChild(img);
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = item.name;
+      card.appendChild(title);
 
-        const title = document.createElement('div');
-        title.className = 'card-title';
-        title.textContent = item.name || 'Unnamed Template';
-        card.appendChild(title);
+      card.onclick = () => {
+        localStorage.setItem('wizardTemplate', `data:application/zip;base64,${item.content}`);
+        window.location.href = 'wizardmaker.html';
+      };
 
-        card.onclick = async () => {
-          const res = await fetch(item.content);
-          const blob = await res.blob();
-          const reader = new FileReader();
-          reader.onload = () => {
-            localStorage.setItem('wizardTemplate', reader.result);
-            window.location.href = 'wizardmaker.html';
-          };
-          reader.readAsDataURL(blob);
-        };
-
-        grid.appendChild(card);
-      }
+      grid.appendChild(card);
     });
-  })
-  .catch(err => console.error('Failed to load library.json', err));
+  });
+
 </script>
 
 </body>
